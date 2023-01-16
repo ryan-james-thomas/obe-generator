@@ -1,0 +1,9 @@
+input[type="text"].inputs {
+    width: 50px;
+}
+
+input[type="text"].entries {
+    text-align: right;
+    width: 100px;
+}
+

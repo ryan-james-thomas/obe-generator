@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title id="title">
+        Optical Bloch Equations
+    </title>
+    <link rel="stylesheet" href="OBE_Style.css"/>
+    <script type="text/javascript"
+            src="../jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async>
+    </script>
+    <script type="text/javascript">
+        var info;
+        
+        $(init);
+        
+        function init() {
+            makeTable();
+        }   //end init
+        
+        function parseData(data,textStatus) {
+            try {
+                info = JSON.parse(data);
+            } catch (err) {
+                $("#phpErrors").html(data);
+                return -1;
+            }
+            
+            for (var i=0;i<info.length;i++) {
+                if (info[i].type == "html") {
+                    $("#" + info[i].id).html(info[i].data);
+                } else if (info[i].type == "value") {
+                    $("#" + info[i].id).val(info[i].data);
+                } else if (info[i].type == "action") {
+                    if (info[i].data == "reload") {
+                        location.reload(true);
+                    } else if (info[i].data == "fadeOut") {
+                        fadeOut(info[i].id);
+                    } else if (info[i].data == "navigate") {
+                        location.href = info[i].id;
+                    }
+                }
+            }
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+        }   //end parseData
+        
+        
+        function makeTable() {
+            $.post("makeTable.php",{"dimensions":$("#numDimensions").val()},parseData);
+        }   //end makeTable
+        
+        function resetEntries() {
+            $.post("resetEntries.php",{},parseData);
+        }   //end resetEntries
+        
+        function makeOBE() {
+            var entries = $("[id*=entry_]");
+            var arr = [];
+            for (var i=0;i<entries.length;i++) {
+                arr[i] = entries[i].value;
+            }
+            $.post("makeOBE.php",{"arr":JSON.stringify(arr)},parseData);
+        }   //end makeOBE
+        
+        
+    </script>
+</head>
+
+<body>
+    <div id="buttons">
+        <input type="button" value="Make Table" class="inputs" onclick="makeTable();"/>
+        <input type="text" id="numDimensions" value="2" class="inputs"/>
+        <input type="button" value="Reset Entries" class="inputs" onclick="resetEntries();"/>
+        <input type="button" class="inputs" value="Make OBE" onclick="makeOBE();"/>
+    </div>
+
+    <div id="entryTableDiv"></div>
+    <div id="obeTableDiv"></div>
+    
+    <p>Math test: \(a_{01}x^2\)</p>
+    
+    <pre id="phpErrors"></pre>
+
+</body>
+</html>
